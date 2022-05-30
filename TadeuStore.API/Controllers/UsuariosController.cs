@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TadeuStore.Domain.Interfaces;
 using TadeuStore.Domain.Models;
@@ -10,30 +11,29 @@ namespace TadeuStore.API.Controllers
     [ApiController]
     public class UsuariosController : ControllerBase
     {
-        private readonly IUsuariosService _usuariosService;
+        private readonly IUsuarioService _usuariosService;
         private readonly IMapper _mapper;
 
         public UsuariosController(
             IMapper mapper,
-            IUsuariosService usuariosRepository)
+            IUsuarioService usuariosRepository)
         {
             _mapper = mapper;
             _usuariosService = usuariosRepository;
         }
 
         [HttpPost]
-        public async Task<ActionResult> Cadastrar(UsuarioRequisicaoViewModel modelView)
-        {
-            await _usuariosService.Adicionar(_mapper.Map<Usuario>(modelView));
-            return Ok();
+        public async Task<ActionResult> Cadastrar(CadastrarUsuarioRequisicaoViewModel viewModel)
+        {            
+            return Ok(await _usuariosService.Adicionar(_mapper.Map<Usuario>(viewModel)));
         }
 
 
         [HttpPost]
         [Route("login")]
-        public async Task<string> Logar(LoginUsuarioRequisicaoViewModel request)
+        public async Task<ActionResult> Logar(LoginRequisicaoViewModel viewModel)
         {
-            return null;
+            return Ok(await _usuariosService.Login(_mapper.Map<Usuario>(viewModel)));
         }
     }
 }

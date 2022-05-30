@@ -2,7 +2,7 @@
 
 namespace TadeuStore.Domain.ViewModels
 {
-    public class UsuarioRequisicaoViewModel
+    public class CadastrarUsuarioRequisicaoViewModel
     {
         public string Nome { get; set; }
         public string Email { get; set; }

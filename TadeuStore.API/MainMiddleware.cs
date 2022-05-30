@@ -17,41 +17,19 @@ namespace TadeuStore.API
 
         public async Task InvokeAsync(HttpContext context)
         {
-            //var originBody = context.Response.Body;
-
             try
             {
-                //var memStream = new MemoryStream();
-                //context.Response.Body = memStream;
-
                 await _next(context);
-
-                //memStream.Position = 0;
-                //var responseBody = new StreamReader(memStream).ReadToEnd();
-
-                //string path = context?.Request?.Path.ToString();
-
-                //if (!path.ToLower().Contains("swagger"))
-                //{
-                //    responseBody = JsonSerializer.Serialize(new
-                //    {
-                //        sucesso = true,
-                //        data = responseBody
-                //    });
-                //}
-
-                //var memoryStreamModified = new MemoryStream();
-                //var sw = new StreamWriter(memoryStreamModified);
-                //sw.Write(responseBody);
-                //sw.Flush();
-                //memoryStreamModified.Position = 0;
-
-                //await memoryStreamModified.CopyToAsync(originBody).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 //_logger.LogError($"Uma exceção ocorreu: {ex}");
                 await HandleExceptionAsync(context, ex);
+            }
+            finally
+            {
+                if (context.Response.StatusCode == StatusCodes.Status401Unauthorized)
+                    await HandleAuthorizationAsync(context);
             }
         }
 
@@ -64,12 +42,25 @@ namespace TadeuStore.API
 
             context.Response.ContentType = "application/json";
 
-            var json = new
+            var json = new ErroDetalhes()
                 {
                     codigo = context.Response.StatusCode,
                     erros = new string[] { ex.Message?.ToString() ?? "" }
                 };
             
+            await context.Response.WriteAsync(JsonSerializer.Serialize(json));
+        }
+
+        private async Task HandleAuthorizationAsync(HttpContext context)
+        {
+            context.Response.ContentType = "application/json";
+
+            var json = new ErroDetalhes()
+            {
+                codigo = context.Response.StatusCode,
+                erros = new string[] { "Sem autorização." }
+            };
+
             await context.Response.WriteAsync(JsonSerializer.Serialize(json));
         }
     }

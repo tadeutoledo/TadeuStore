@@ -8,7 +8,11 @@ namespace TadeuStore.API.Configuration
     {
         public AutomapperConfig()
         {
-            CreateMap<UsuarioRequisicaoViewModel, Usuario>().ReverseMap();
+            CreateMap<CadastrarUsuarioRequisicaoViewModel, Usuario>().ReverseMap();
+
+            CreateMap<LoginRequisicaoViewModel, Usuario>().ReverseMap();
+
+            CreateMap<CadastrarUsuarioRespostaViewModel, Usuario>().ReverseMap();
         }
     }
 }

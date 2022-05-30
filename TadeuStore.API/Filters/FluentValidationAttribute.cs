@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using TadeuStore.Domain.Models;
 
 namespace TadeuStore.API.Filters
 {
@@ -14,15 +15,15 @@ namespace TadeuStore.API.Filters
                         .Select(v => v.ErrorMessage)
                         .ToList();
 
-                var result = new
+                var result = new ErroDetalhes()
                 {
                     codigo = StatusCodes.Status400BadRequest,
-                    errors = errors
+                    erros = errors?.ToArray()
                 };
 
                 context.Result = new JsonResult(result)
                 {
-                    StatusCode = 400
+                    StatusCode = StatusCodes.Status400BadRequest
                 };
             }
         }
