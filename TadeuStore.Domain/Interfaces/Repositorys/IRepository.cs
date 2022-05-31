@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using TadeuStore.Domain.Models;
 
-namespace TadeuStore.Domain.Interfaces
+namespace TadeuStore.Domain.Interfaces.Repositorys
 {
     public interface IRepository<TEntity> : IDisposable where TEntity : Entity
     {

@@ -1,4 +1,4 @@
-﻿using TadeuStore.Domain.Interfaces;
+﻿using TadeuStore.Domain.Interfaces.Repositorys;
 using TadeuStore.Domain.Models;
 using TadeuStore.Infra.Data.Context;
 

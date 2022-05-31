@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using TadeuStore.Domain.Interfaces;
+using TadeuStore.Domain.Interfaces.Repositorys;
 using TadeuStore.Domain.Models;
 using TadeuStore.Infra.Data.Context;
 
@@ -47,7 +47,6 @@ namespace TadeuStore.Infra.Data.Repositorys
         {
             return await DbSet.FindAsync(id);
         }
-
         public async Task<int> SaveChanges()
         {
             return await Db.SaveChangesAsync();

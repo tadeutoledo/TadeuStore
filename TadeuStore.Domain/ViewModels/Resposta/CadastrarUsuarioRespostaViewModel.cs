@@ -1,6 +1,6 @@
 ﻿using TadeuStore.Domain.Models.Enums;
 
-namespace TadeuStore.Domain.ViewModels
+namespace TadeuStore.Domain.ViewModels.Resposta
 {
     public class CadastrarUsuarioRespostaViewModel
     {

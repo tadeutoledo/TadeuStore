@@ -1,7 +1,7 @@
 ﻿using TadeuStore.Domain.Models;
-using TadeuStore.Domain.ViewModels;
+using TadeuStore.Domain.ViewModels.Resposta;
 
-namespace TadeuStore.Domain.Interfaces
+namespace TadeuStore.Domain.Interfaces.Services
 {
     public interface IUsuarioService
     {

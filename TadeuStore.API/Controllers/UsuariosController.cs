@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TadeuStore.Domain.Interfaces;
+using TadeuStore.Domain.Interfaces.Services;
 using TadeuStore.Domain.Models;
-using TadeuStore.Domain.ViewModels;
+using TadeuStore.Domain.ViewModels.Requisicao;
 
 namespace TadeuStore.API.Controllers
 {

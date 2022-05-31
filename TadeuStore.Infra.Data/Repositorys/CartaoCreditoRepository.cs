@@ -4,11 +4,10 @@ using TadeuStore.Infra.Data.Context;
 
 namespace TadeuStore.Infra.Data.Repositorys
 {
-    public class UsuarioRepository : Repository<Usuario>, IUsuarioRepository
+    public class CartaoCreditoRepository : Repository<CartaoCredito>, ICartaoCreditoRepository
     {
-        public UsuarioRepository(MainContext context) : base(context)
+        public CartaoCreditoRepository(MainContext context) : base(context)
         {
-
         }
     }
 }

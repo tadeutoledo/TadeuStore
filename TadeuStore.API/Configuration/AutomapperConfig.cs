@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using TadeuStore.Domain.Models;
-using TadeuStore.Domain.ViewModels;
+using TadeuStore.Domain.ViewModels.Requisicao;
+using TadeuStore.Domain.ViewModels.Resposta;
 
 namespace TadeuStore.API.Configuration
 {
@@ -13,6 +14,8 @@ namespace TadeuStore.API.Configuration
             CreateMap<LoginRequisicaoViewModel, Usuario>().ReverseMap();
 
             CreateMap<CadastrarUsuarioRespostaViewModel, Usuario>().ReverseMap();
+
+            CreateMap<CartaoCreditoRequisicaoViewModel, CartaoCredito>().ReverseMap();
         }
     }
 }

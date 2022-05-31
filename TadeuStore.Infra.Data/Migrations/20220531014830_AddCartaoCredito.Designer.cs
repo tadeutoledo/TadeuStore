@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TadeuStore.Infra.Data.Context;
 
@@ -11,9 +12,10 @@ using TadeuStore.Infra.Data.Context;
 namespace TadeuStore.Infra.Data.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20220531014830_AddCartaoCredito")]
+    partial class AddCartaoCredito
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,23 +59,19 @@ namespace TadeuStore.Infra.Data.Migrations
                     b.Property<int>("Bandeira")
                         .HasColumnType("int");
 
-                    b.Property<int>("CodigoSeguranca")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DataExpiracao")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NomeImpresso")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Numero")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NumeroNormalizado")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("UsuarioId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Vencimento")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 

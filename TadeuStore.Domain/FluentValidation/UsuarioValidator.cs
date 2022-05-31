@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using TadeuStore.Domain.ViewModels;
+using TadeuStore.Domain.ViewModels.Requisicao;
 
 namespace TadeuStore.Domain.FluentValidation
 {

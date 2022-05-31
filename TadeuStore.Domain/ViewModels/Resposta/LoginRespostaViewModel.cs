@@ -1,4 +1,4 @@
-﻿namespace TadeuStore.Domain.ViewModels
+﻿namespace TadeuStore.Domain.ViewModels.Resposta
 {
     public class LoginRespostaViewModel
     {

@@ -1,6 +1,5 @@
 using TadeuStore.Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
-using TadeuStore.Domain.Interfaces;
 using TadeuStore.Infra.Data.Repositorys;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +12,8 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using TadeuStore.Domain.Interfaces.Repositorys;
+using TadeuStore.Domain.Interfaces.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,34 +24,10 @@ builder.Services.AddDbContext<MainContext>(o =>
     o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));   
 });
 
+
 // Services
 
-builder.Services
-    .AddControllers(o => 
-    { 
-        o.Filters.Add(typeof(FluentValidationAttribute)); 
-    });
-
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-builder.Services
-    .AddFluentValidation(options =>
-    {
-        options.ImplicitlyValidateChildProperties = true;
-        options.ImplicitlyValidateRootCollectionElements = true;
-        options.RegisterValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
-    });
-
-builder.Services.Configure<ApiBehaviorOptions>(options =>
-{
-    options.SuppressModelStateInvalidFilter = true;
-});
-
-var key = Encoding.ASCII.GetBytes("fedaf7d8863b48e197b9287d492b708e");
+var key = Encoding.ASCII.GetBytes("DECC53D4-BF3D-41D7-A5B8-CF2F25F98E7F");
 
 builder.Services.AddAuthentication(x =>
 {
@@ -68,6 +45,30 @@ builder.Services.AddAuthentication(x =>
         ValidateIssuer = false,
         ValidateAudience = false
     };
+});
+
+
+builder.Services
+    .AddControllers(o => 
+    { 
+        o.Filters.Add(typeof(FluentValidationAttribute)); 
+    });
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies().Where(p => !p.IsDynamic));
+
+builder.Services
+    .AddFluentValidation(options =>
+    {
+        options.ImplicitlyValidateChildProperties = true;
+        options.ImplicitlyValidateRootCollectionElements = true;
+        options.RegisterValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies().Where(p => !p.IsDynamic));
+    });
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
 });
 
 builder.Services.AddSwaggerGen(c =>
@@ -100,10 +101,16 @@ builder.Services.AddSwaggerGen(c =>
 
 // Resolve Dependecys
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddTransient<MainContext>();
+
 builder.Services.AddTransient<IUsuarioService, UsuarioService>();
+builder.Services.AddTransient<IAplicativoService, AplicativoService>();
+
 builder.Services.AddTransient<IAplicativoRepository, AplicaticoRepository>();
 builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddTransient<ICartaoCreditoRepository, CartaoCreditoRepository>();
 
 // Handle Errors
 

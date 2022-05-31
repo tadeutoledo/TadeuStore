@@ -58,7 +58,7 @@ namespace TadeuStore.API
             var json = new ErroDetalhes()
             {
                 codigo = context.Response.StatusCode,
-                erros = new string[] { "Sem autorização." }
+                erros = new string[] { "Usuário não logado." }
             };
 
             await context.Response.WriteAsync(JsonSerializer.Serialize(json));

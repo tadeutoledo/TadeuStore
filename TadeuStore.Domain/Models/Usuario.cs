@@ -12,6 +12,7 @@ namespace TadeuStore.Domain.Models
         public TipoSexo Sexo { get; set; }
         public string Endereco { get; set; }
         public string Complemento { get; set; }
+        public IEnumerable<CartaoCredito> CartoesCredito { get; set; }
 
     }
 }

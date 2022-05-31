@@ -1,5 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TadeuStore.Domain.Interfaces;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using TadeuStore.Domain.Interfaces.Repositorys;
+using TadeuStore.Domain.Interfaces.Services;
+using TadeuStore.Domain.Models;
+using TadeuStore.Domain.ViewModels.Requisicao;
 
 namespace TadeuStore.API.Controllers
 {
@@ -7,17 +12,30 @@ namespace TadeuStore.API.Controllers
     [ApiController]
     public class AplicativosController : ControllerBase
     {
-        private readonly IAplicativoRepository _aplicativoRepository;
+        private readonly IMapper _mapper;
+        private readonly IAplicativoService _aplicativoService;
 
-        public AplicativosController(IAplicativoRepository aplicativoRepository)
+        public AplicativosController(
+            IMapper mapper,
+            IAplicativoService aplicativoService)
         {
-            _aplicativoRepository = aplicativoRepository;
+            _mapper = mapper;
+            _aplicativoService = aplicativoService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> ObterTodos()
+        public async Task<ActionResult> ObterTodos()
         {
-            return Ok(await _aplicativoRepository.ObterTodos());
+            return Ok(await _aplicativoService.ObterTodos());
+        }
+
+        [HttpPost]
+        [Route("{id:Guid}/Comprar")]
+        [Authorize]
+        public async Task<ActionResult> Comprar(CartaoCreditoRequisicaoViewModel viewModel, Guid id)
+        {            
+            await _aplicativoService.Comprar(id, _mapper.Map<CartaoCredito>(viewModel), viewModel.Salvar);
+            return Ok();
         }
     }
 }
