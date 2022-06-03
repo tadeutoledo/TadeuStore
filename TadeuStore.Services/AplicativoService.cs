@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System.Net.Http;
 using System.Security.Claims;
+using TadeuStore.Domain.EventBus;
 using TadeuStore.Domain.Interfaces.Repositorys;
 using TadeuStore.Domain.Interfaces.Services;
 using TadeuStore.Domain.Models;
@@ -13,17 +13,20 @@ namespace TadeuStore.Services
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IAplicativoRepository _aplicativoRepository;
         private readonly ICartaoCreditoRepository _cartaoCreditoRepository;
+        private readonly IEventBus _bus;
 
         public AplicativoService(
             IHttpContextAccessor httpContextAccessor,
             IUsuarioRepository usuarioRepository,
             IAplicativoRepository aplicativoRepository,
-            ICartaoCreditoRepository cartaoCreditoRepository)
+            ICartaoCreditoRepository cartaoCreditoRepository,
+            IEventBus bus)
         {
             _httpContextAccessor = httpContextAccessor;
             _usuarioRepository = usuarioRepository;
             _aplicativoRepository = aplicativoRepository;
             _cartaoCreditoRepository = cartaoCreditoRepository;
+            _bus = bus;
         }
 
         public async Task<IEnumerable<Aplicativo>> ObterTodos()
@@ -58,11 +61,13 @@ namespace TadeuStore.Services
 
             //Adicionar ao serviço de fila
 
-            if (salvarCartao && !(await _cartaoCreditoRepository.Obter(x => x.Numero == cartao.Numero)).Any())
+            if (salvarCartao && !(await _cartaoCreditoRepository.Obter(x => x.Numero == cartao.Numero && x.UsuarioId == usuario.Id)).Any())
             {
                 cartao.UsuarioId = usuario.Id;
                 await _cartaoCreditoRepository.Adicionar(cartao);     
             }
+
+            _bus.Publish(new AutorizarPagamentoIntegrationEvent(Guid.NewGuid()));
         }
     }
 }

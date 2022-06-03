@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TadeuStore.Domain\TadeuStore.Domain.csproj" />
+    <ProjectReference Include="..\TadeuStore.Infra.CrossCutting\TadeuStore.Infra.CrossCutting.csproj" />
   </ItemGroup>
 
 </Project>

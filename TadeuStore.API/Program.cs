@@ -14,6 +14,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TadeuStore.Domain.Interfaces.Repositorys;
 using TadeuStore.Domain.Interfaces.Services;
+using TadeuStore.Domain.Interfaces;
+using TadeuStore.Infra.CrossCutting.ServiceBrokerIntegration;
+using Microsoft.Extensions.Logging;
+using TadeuStore.Domain.EventBus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +28,7 @@ builder.Services.AddDbContext<MainContext>(o =>
     o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));   
 });
 
+builder.Services.AddLogging();
 
 // Services
 
@@ -111,6 +116,9 @@ builder.Services.AddTransient<IAplicativoService, AplicativoService>();
 builder.Services.AddTransient<IAplicativoRepository, AplicaticoRepository>();
 builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddTransient<ICartaoCreditoRepository, CartaoCreditoRepository>();
+
+builder.Services.AddSingleton<IEventBus, EventBusRabbitMQ>();
+
 
 // Handle Errors
 
