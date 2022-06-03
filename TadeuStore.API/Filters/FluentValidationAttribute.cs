@@ -6,6 +6,13 @@ namespace TadeuStore.API.Filters
 {
     public class FluentValidationAttribute : ActionFilterAttribute
     {
+        private readonly ILogger<FluentValidationAttribute> _logger;
+        
+        public FluentValidationAttribute(ILogger<FluentValidationAttribute> logger)
+        {
+            _logger = logger;
+        }
+
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             if (!context.ModelState.IsValid)
@@ -25,6 +32,8 @@ namespace TadeuStore.API.Filters
                 {
                     StatusCode = StatusCodes.Status400BadRequest
                 };
+
+                _logger.LogInformation($"Model Status inválido: {result.erros}");
             }
         }
     }

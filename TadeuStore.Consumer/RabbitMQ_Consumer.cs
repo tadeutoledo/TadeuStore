@@ -3,6 +3,8 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
 using TadeuStore.Domain.EventBus;
+using TadeuStore.Domain.Interfaces.Repositorys;
+using TadeuStore.Domain.Models;
 
 namespace TadeuStore.Consumer
 {
@@ -23,6 +25,10 @@ namespace TadeuStore.Consumer
 
         private IConnection _connection;
         private IModel _channel;
+
+        public RabbitMQ_Consumer(ITransacaoRepository transacaoRepository) : base(transacaoRepository)
+        {
+        }
 
         private void Tryconnect()
         {
@@ -70,7 +76,7 @@ namespace TadeuStore.Consumer
 
         }
 
-        private void Consumer_Received(object sender, BasicDeliverEventArgs eventArgs)
+        private async void Consumer_Received(object sender, BasicDeliverEventArgs eventArgs)
         {
             var eventName = eventArgs.RoutingKey;
             var message = Encoding.UTF8.GetString(eventArgs.Body.Span);
@@ -79,7 +85,8 @@ namespace TadeuStore.Consumer
             {
                 // Direncionar para o Handle do evento
 
-                ProcessEvent(eventName, message);
+                await ProcessEvent(eventName, message);
+
                 _channel.BasicAck(eventArgs.DeliveryTag, multiple: false);
             }
             catch (Exception ex)
@@ -89,15 +96,25 @@ namespace TadeuStore.Consumer
             }
         }
 
-        private async void ProcessEvent(string eventName, string message)
+        private async Task<ResponseMessage> ProcessEvent(string eventName, string message)
         {
             Type type = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).First(x => x.Name == eventName);
 
             var eventData = JsonConvert.DeserializeObject(message, type);
 
             if (HasSubscription(eventName))
-                ExecuteEvent(eventName, (IIntegrationEventHandler)eventData);
-                
+            {
+                var result = await ExecuteEvent(eventName, (IIntegrationEventHandler)eventData);
+
+                if (!result.ValidationResult.IsValid)
+                {
+                    var errorMessage = "";
+                    result.ValidationResult.Errors.ForEach(x => errorMessage += $"{x.ErrorCode} - {x.ErrorMessage} |");
+                    throw new Exception(errorMessage);
+                }
+            }
+
+            return await Task.Run(() => new ResponseMessage(new FluentValidation.Results.ValidationResult()));
         }
     }
 }

@@ -4,8 +4,6 @@ using TadeuStore.Infra.Data.Repositorys;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using TadeuStore.API.Filters;
-using System.Net;
-using Microsoft.AspNetCore.Diagnostics;
 using TadeuStore.Services;
 using TadeuStore.API;
 using System.Text;
@@ -14,9 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TadeuStore.Domain.Interfaces.Repositorys;
 using TadeuStore.Domain.Interfaces.Services;
-using TadeuStore.Domain.Interfaces;
 using TadeuStore.Infra.CrossCutting.ServiceBrokerIntegration;
-using Microsoft.Extensions.Logging;
 using TadeuStore.Domain.EventBus;
 
 var builder = WebApplication.CreateBuilder(args);

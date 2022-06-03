@@ -9,10 +9,12 @@ namespace TadeuStore.API
     public class MainMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<MainMiddleware> _logger;
 
-        public MainMiddleware(RequestDelegate next)
+        public MainMiddleware(RequestDelegate next, ILogger<MainMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -23,7 +25,6 @@ namespace TadeuStore.API
             }
             catch (Exception ex)
             {
-                //_logger.LogError($"Uma exceção ocorreu: {ex}");
                 await HandleExceptionAsync(context, ex);
             }
             finally
@@ -36,16 +37,22 @@ namespace TadeuStore.API
         private async Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
             if (ex is ArgumentException || ex is ArgumentNullException || ex is NotImplementedException)
-                context.Response.StatusCode = StatusCodes.Status400BadRequest; 
+            {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                _logger.LogInformation($"{ex.Message} | {ex.InnerException?.Message}");
+            }
             else
+            {
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                _logger.LogCritical($"{ex.Message} | {ex.InnerException?.Message} | {ex.StackTrace}");
+            }
 
             context.Response.ContentType = "application/json";
 
             var json = new ErroDetalhes()
                 {
                     codigo = context.Response.StatusCode,
-                    erros = new string[] { ex.Message?.ToString() ?? "" }
+                    erros = new string[] { ex.Message?.ToString() ?? "", ex.InnerException?.Message }
                 };
             
             await context.Response.WriteAsync(JsonSerializer.Serialize(json));

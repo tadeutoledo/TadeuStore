@@ -7,7 +7,6 @@ namespace TadeuStore.Infra.Data.Context
     {
         public MainContext(DbContextOptions options) : base(options)
         {
-
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

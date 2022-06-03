@@ -4,6 +4,7 @@ using TadeuStore.Domain.EventBus;
 using TadeuStore.Domain.Interfaces.Repositorys;
 using TadeuStore.Domain.Interfaces.Services;
 using TadeuStore.Domain.Models;
+using TadeuStore.Domain.Models.Enums;
 
 namespace TadeuStore.Services
 {
@@ -65,21 +66,22 @@ namespace TadeuStore.Services
             if (usuario == null)
                 throw new ArgumentException($"O aplicativo [{id}] não foi encontrado");
 
-            var cartaoUsado = usuario.CartoesCredito?.Where(x => x.Numero == cartao.Numero && x.UsuarioId == usuario.Id)?.FirstOrDefault();
+            cartao = usuario.CartoesCredito?.Where(x => x.Numero == cartao.Numero && x.UsuarioId == usuario.Id)?.FirstOrDefault() ?? cartao;
 
-            if (salvarCartao && cartaoUsado == null)
+            if (salvarCartao && cartao?.Id == Guid.Empty)
             {
                 cartao.UsuarioId = usuario.Id;
-                await _cartaoCreditoRepository.Adicionar(cartao);     
+                cartao = await _cartaoCreditoRepository.Adicionar(cartao);     
             }
 
             var transacao = new Transacao()
             {
                 AplicativoId = id,
                 UsuarioId = usuario.Id,
-                CartaoCreditoId = cartaoUsado?.Id ?? null,
+                CartaoCreditoId = cartao?.Id == Guid.Empty ? null : cartao?.Id,
                 ValorPago = (decimal)new Random().NextDouble(),
-                DataHoraCompra = DateTime.Now
+                DataHoraCompra = DateTime.Now,
+                StatusAutorizacao = (int)TipoAutorizacaoTransacao.EmProcessamento
             };
 
             transacao = await _transacaoRepository.Adicionar(transacao);
