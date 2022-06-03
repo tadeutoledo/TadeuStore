@@ -116,6 +116,7 @@ builder.Services.AddTransient<IAplicativoService, AplicativoService>();
 builder.Services.AddTransient<IAplicativoRepository, AplicaticoRepository>();
 builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddTransient<ICartaoCreditoRepository, CartaoCreditoRepository>();
+builder.Services.AddTransient<ITransacaoRepository, TransacaoRepository>();
 
 builder.Services.AddSingleton<IEventBus, EventBusRabbitMQ>();
 

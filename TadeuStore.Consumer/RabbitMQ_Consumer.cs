@@ -1,14 +1,8 @@
-﻿using FluentValidation.Results;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
-using System.Text.Json;
 using TadeuStore.Domain.EventBus;
-using TadeuStore.Domain.Models;
-using TadeuStore.Domain.Models.Enums;
 
 namespace TadeuStore.Consumer
 {
@@ -27,14 +21,14 @@ namespace TadeuStore.Consumer
         }
 
 
-        private IConnection connection;
-        private IModel channel;
+        private IConnection _connection;
+        private IModel _channel;
 
         private void Tryconnect()
         {
             try
             {
-                if (connection?.IsOpen ?? false)
+                if (_connection?.IsOpen ?? false)
                     return;
 
                 var factory = new ConnectionFactory()
@@ -42,8 +36,8 @@ namespace TadeuStore.Consumer
                     HostName = "localhost"
                 };
              
-                connection = factory.CreateConnection();
-                channel = connection.CreateModel();
+                _connection = factory.CreateConnection();
+                _channel = _connection.CreateModel();
 
             }
             catch (Exception ex)
@@ -59,17 +53,17 @@ namespace TadeuStore.Consumer
 
             base.AddSubscription(eventName, eventHandler);
 
-            channel.QueueDeclare(queue: eventName,
+            _channel.QueueDeclare(queue: eventName,
                                 durable: false,
                                 exclusive: false,
                                 autoDelete: false,
                                 arguments: null);
 
-            var consumer = new EventingBasicConsumer(channel);
+            var consumer = new EventingBasicConsumer(_channel);
 
             consumer.Received += Consumer_Received;
 
-            channel.BasicConsume(
+            _channel.BasicConsume(
                 queue: eventName,
                 autoAck: false,
                 consumer: consumer);
@@ -86,11 +80,11 @@ namespace TadeuStore.Consumer
                 // Direncionar para o Handle do evento
 
                 ProcessEvent(eventName, message);
-                channel.BasicAck(eventArgs.DeliveryTag, multiple: false);
+                _channel.BasicAck(eventArgs.DeliveryTag, multiple: false);
             }
             catch (Exception ex)
             {
-                channel.BasicNack(eventArgs.DeliveryTag, multiple: false, true);
+                _channel.BasicNack(eventArgs.DeliveryTag, multiple: false, true);
                 Console.WriteLine("Erro ao processo evento: " + ex.Message);
             }
         }

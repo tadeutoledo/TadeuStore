@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TadeuStore.Infra.Data.Context;
 
@@ -11,9 +12,10 @@ using TadeuStore.Infra.Data.Context;
 namespace TadeuStore.Infra.Data.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20220603164803_Add Transacao")]
+    partial class AddTransacao
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,7 +93,7 @@ namespace TadeuStore.Infra.Data.Migrations
                     b.Property<Guid>("AplicativoId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CartaoCreditoId")
+                    b.Property<Guid>("CartaoCreditoId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DataHoraCompra")
@@ -160,6 +162,7 @@ namespace TadeuStore.Infra.Data.Migrations
                     b.HasOne("TadeuStore.Domain.Models.Usuario", "Usuario")
                         .WithMany("CartoesCredito")
                         .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Usuario");
@@ -170,15 +173,19 @@ namespace TadeuStore.Infra.Data.Migrations
                     b.HasOne("TadeuStore.Domain.Models.Aplicativo", "Aplicativo")
                         .WithMany()
                         .HasForeignKey("AplicativoId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TadeuStore.Domain.Models.CartaoCredito", "CartaoCredito")
                         .WithMany()
-                        .HasForeignKey("CartaoCreditoId");
+                        .HasForeignKey("CartaoCreditoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("TadeuStore.Domain.Models.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Aplicativo");

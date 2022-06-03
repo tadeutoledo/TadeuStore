@@ -17,12 +17,13 @@ namespace TadeuStore.Infra.Data.Repositorys
             DbSet = Db.Set<TEntity>();
         }
 
-        public virtual async Task Adicionar(TEntity entity)
+        public virtual async Task<TEntity> Adicionar(TEntity entity)
         {
             DbSet.Add(entity);
             await SaveChanges();
+            await Db.Entry(entity).GetDatabaseValuesAsync();
+            return entity;
         }
-
         public virtual async Task Atualizar(TEntity entity)
         {
             DbSet.Update(entity);

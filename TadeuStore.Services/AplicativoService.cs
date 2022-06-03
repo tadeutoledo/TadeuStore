@@ -13,6 +13,7 @@ namespace TadeuStore.Services
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IAplicativoRepository _aplicativoRepository;
         private readonly ICartaoCreditoRepository _cartaoCreditoRepository;
+        private readonly ITransacaoRepository _transacaoRepository;
         private readonly IEventBus _bus;
 
         public AplicativoService(
@@ -20,12 +21,14 @@ namespace TadeuStore.Services
             IUsuarioRepository usuarioRepository,
             IAplicativoRepository aplicativoRepository,
             ICartaoCreditoRepository cartaoCreditoRepository,
+            ITransacaoRepository transacaoRepository,
             IEventBus bus)
         {
             _httpContextAccessor = httpContextAccessor;
             _usuarioRepository = usuarioRepository;
             _aplicativoRepository = aplicativoRepository;
             _cartaoCreditoRepository = cartaoCreditoRepository;
+            _transacaoRepository = transacaoRepository;
             _bus = bus;
         }
 
@@ -59,15 +62,29 @@ namespace TadeuStore.Services
 
             var aplicativo = _aplicativoRepository.ObterPorId(id);
 
-            //Adicionar ao serviço de fila
+            if (usuario == null)
+                throw new ArgumentException($"O aplicativo [{id}] não foi encontrado");
 
-            if (salvarCartao && !(await _cartaoCreditoRepository.Obter(x => x.Numero == cartao.Numero && x.UsuarioId == usuario.Id)).Any())
+            var cartaoUsado = usuario.CartoesCredito?.Where(x => x.Numero == cartao.Numero && x.UsuarioId == usuario.Id)?.FirstOrDefault();
+
+            if (salvarCartao && cartaoUsado == null)
             {
                 cartao.UsuarioId = usuario.Id;
                 await _cartaoCreditoRepository.Adicionar(cartao);     
             }
 
-            _bus.Publish(new AutorizarPagamentoIntegrationEvent(Guid.NewGuid()));
+            var transacao = new Transacao()
+            {
+                AplicativoId = id,
+                UsuarioId = usuario.Id,
+                CartaoCreditoId = cartaoUsado?.Id ?? null,
+                ValorPago = (decimal)new Random().NextDouble(),
+                DataHoraCompra = DateTime.Now
+            };
+
+            transacao = await _transacaoRepository.Adicionar(transacao);
+
+            _bus.Publish(new AutorizarPagamentoIntegrationEvent(transacao.Id));
         }
     }
 }
