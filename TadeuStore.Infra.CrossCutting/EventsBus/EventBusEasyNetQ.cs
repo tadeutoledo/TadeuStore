@@ -41,6 +41,11 @@ namespace TadeuStore.Infra.CrossCutting.EventsBus
             policy.Execute(() => { _bus = RabbitHutch.CreateBus(_connectionString); });
         }
 
+        public static Type GetAnyObjectInstanceType(object someObject)
+        {
+            return someObject.GetType();
+        }
+
         public async void Publish(IntegrationEvent @event)
         {
             TryConnect();

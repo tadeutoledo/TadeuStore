@@ -6,14 +6,17 @@ using Microsoft.AspNetCore.Mvc;
 using TadeuStore.API.Filters;
 using TadeuStore.Services;
 using TadeuStore.API;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using TadeuStore.Domain.Interfaces.Repositorys;
 using TadeuStore.Domain.Interfaces.Services;
 using TadeuStore.Domain.EventBus;
 using TadeuStore.Infra.CrossCutting.EventsBus;
+using TadeuStore.Domain.Models;
+using TadeuStore.API.Configuration;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
+
+[assembly: ApiConventionType(typeof(DefaultApiConventions))]
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,31 +31,16 @@ builder.Services.AddLogging();
 
 // Services
 
-var key = Encoding.ASCII.GetBytes("DECC53D4-BF3D-41D7-A5B8-CF2F25F98E7F");
-
-builder.Services.AddAuthentication(x =>
-{
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(x =>
-{
-    x.RequireHttpsMetadata = false;
-    x.SaveToken = true;
-    x.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false
-    };
-});
+builder.Services.AddJwtConfig();
 
 
 builder.Services
     .AddControllers(o => 
     { 
-        o.Filters.Add(typeof(FluentValidationAttribute)); 
+        o.Filters.Add(typeof(FluentValidationAttribute));
+        o.Filters.Add(new ProducesResponseTypeAttribute(typeof(ErroDetalhes), 400));
+        o.Filters.Add(new ProducesResponseTypeAttribute(typeof(ErroDetalhes), 500));
+        o.Filters.Add(new ProducesAttribute("application/json"));
     });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -72,33 +60,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
-builder.Services.AddSwaggerGen(c =>
-{    
-
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-    {
-        Description = "Insira o token JWT desta maneira: Bearer {seu token}",
-        Name = "Authorization",
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                          new OpenApiSecurityScheme
-                          {
-                              Reference = new OpenApiReference
-                              {
-                                  Type = ReferenceType.SecurityScheme,
-                                  Id = "Bearer"
-                              }
-                          },
-                         new string[] {}
-                    }
-                });
-});
+builder.Services.AddSwaggerConfig();
 
 // Resolve Dependecys
 
@@ -116,20 +78,20 @@ builder.Services.AddTransient<ITransacaoRepository, TransacaoRepository>();
 
 builder.Services.AddSingleton<IEventBus, EventBusEasyNetQ>();
 
+builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+
 
 // Handle Errors
 
 var app = builder.Build();
+var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 
 app.UseMiddleware<MainMiddleware>();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
+app.UseSwagger();
+app.UseSwaggerConfig(apiVersionDescriptionProvider);
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

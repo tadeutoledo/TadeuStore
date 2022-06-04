@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TadeuStore.Domain.Interfaces.Services;
 using TadeuStore.Domain.Models;
 using TadeuStore.Domain.ViewModels.Requisicao;
+using TadeuStore.Domain.ViewModels.Resposta;
 
 namespace TadeuStore.API.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class UsuariosController : ControllerBase
     {
@@ -23,6 +24,7 @@ namespace TadeuStore.API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CadastrarUsuarioRequisicaoViewModel))]
         public async Task<ActionResult> Cadastrar(CadastrarUsuarioRequisicaoViewModel viewModel)
         {            
             return Ok(await _usuariosService.Adicionar(_mapper.Map<Usuario>(viewModel)));
@@ -31,6 +33,7 @@ namespace TadeuStore.API.Controllers
 
         [HttpPost]
         [Route("login")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginRespostaViewModel))]
         public async Task<ActionResult> Logar(LoginRequisicaoViewModel viewModel)
         {
             return Ok(await _usuariosService.Login(_mapper.Map<Usuario>(viewModel)));

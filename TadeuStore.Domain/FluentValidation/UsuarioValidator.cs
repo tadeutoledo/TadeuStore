@@ -18,6 +18,12 @@ namespace TadeuStore.Domain.FluentValidation
             RuleFor(x => x.Sexo)
                 .IsInEnum().WithMessage("O campo {PropertyName} está inválido.");
 
+            RuleFor(x => x.Cpf)
+                .NotNull().WithMessage("O campo {PropertyName} não pode ser nulo.")
+                .NotEmpty().WithMessage("O campo {PropertyName} não pode estar vazio.")
+                .MaximumLength(11).WithMessage("O tamanho máximo do campo {PropertyName} é de {MaxLength} caracteres.")
+                .MinimumLength(11).WithMessage("O tamanho mínimo do campo {PropertyName} é de {MinLength} caracteres.");
+
             RuleFor(x => x.Senha)
                 .NotEmpty().WithMessage("O campo {PropertyName} não pode estar vazio.")
                 .MinimumLength(8).WithMessage("O tamanho mínimo do campo {PropertyName} é de {MinLength} caracteres.")
@@ -27,7 +33,19 @@ namespace TadeuStore.Domain.FluentValidation
                 .Matches(@"[0-9]+").WithMessage("O campo {PropertyName} deve conter números.")
                 .Matches(@"[\!\?\*\.]+").WithMessage("O campo {PropertyName} deve conter ao menos um carecter especial (!? *.).");
 
-            // Replicar para os demais requeridos
+            RuleFor(x => x.DataNascimento)
+                .Must(DataValida).WithMessage("O campo {PropertyName} está inválido.");
+
+            RuleFor(x => x.Cpf)
+                .NotNull().WithMessage("O campo {PropertyName} não pode ser nulo.")
+                .NotEmpty().WithMessage("O campo {PropertyName} não pode estar vazio.")
+                .MaximumLength(200).WithMessage("O tamanho máximo do campo {PropertyName} é de {MaxLength} caracteres.")
+                .MinimumLength(200).WithMessage("O tamanho mínimo do campo {PropertyName} é de {MinLength} caracteres.");
+        }
+
+        private bool DataValida(DateTime date)
+        {
+            return !date.Equals(default(DateTime));
         }
     }
 }

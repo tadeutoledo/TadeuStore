@@ -1,14 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TadeuStore.Domain.Interfaces.Repositorys;
 using TadeuStore.Domain.Interfaces.Services;
 using TadeuStore.Domain.Models;
 using TadeuStore.Domain.ViewModels.Requisicao;
 
 namespace TadeuStore.API.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class AplicativosController : ControllerBase
     {
@@ -24,6 +24,7 @@ namespace TadeuStore.API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Aplicativo>))]
         public async Task<ActionResult> ObterTodos()
         {
             return Ok(await _aplicativoService.ObterTodos());
@@ -31,6 +32,7 @@ namespace TadeuStore.API.Controllers
 
         [HttpPost]
         [Route("{id:Guid}/Comprar")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ErroDetalhes))]
         [Authorize]
         public async Task<ActionResult> Comprar(CartaoCreditoRequisicaoViewModel viewModel, Guid id)
         {            
