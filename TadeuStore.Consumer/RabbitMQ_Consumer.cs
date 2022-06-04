@@ -1,6 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Polly;
+using Polly.Retry;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Exceptions;
+using System.Net.Sockets;
 using System.Text;
 using TadeuStore.Domain.EventBus;
 using TadeuStore.Domain.Interfaces.Repositorys;
@@ -9,7 +14,23 @@ using TadeuStore.Domain.Models;
 namespace TadeuStore.Consumer
 {
     public class RabbitMQ_Consumer : ConsumerBase
+
     {
+        const int _retryCount = 3;
+        private readonly string _connectionString;
+        private IConnection _connection;
+        private IModel _channel;
+
+        public RabbitMQ_Consumer(
+            ITransacaoRepository transacaoRepository,
+            IConfiguration configuration) 
+            : base(
+                  transacaoRepository, 
+                  configuration)
+        {
+            _connectionString = configuration.GetSection("MessageBrokerConnection")?["Default"] ?? "";
+        }
+
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             Console.WriteLine($"Iniciando {nameof(RabbitMQ_Consumer)}...");
@@ -23,14 +44,7 @@ namespace TadeuStore.Consumer
         }
 
 
-        private IConnection _connection;
-        private IModel _channel;
-
-        public RabbitMQ_Consumer(ITransacaoRepository transacaoRepository) : base(transacaoRepository)
-        {
-        }
-
-        private void Tryconnect()
+        protected override void TryConnect()
         {
             try
             {
@@ -39,23 +53,39 @@ namespace TadeuStore.Consumer
 
                 var factory = new ConnectionFactory()
                 {
-                    HostName = "localhost"
+                    HostName = _connectionString
                 };
-             
-                _connection = factory.CreateConnection();
-                _channel = _connection.CreateModel();
+
+                var policy = Policy
+                    .Handle<SocketException>()
+                    .Or<BrokerUnreachableException>()
+                    .WaitAndRetry(_retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
+                    {
+                        Console.WriteLine("RabbitMQ Client não pode ser conectar após {TimeOut}s ({ExceptionMessage})", $"{time.TotalSeconds:n1}", ex.Message);
+                    }
+                );
+
+                policy.Execute(() =>
+                {
+                    _connection = factory.CreateConnection();
+                });
+
+                policy.Execute(() =>
+                {
+                    _channel = _connection?.CreateModel();
+                });
 
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro ao inicializar RabbiMQ Consumer error,ex:{ex.Message}");
+                Console.WriteLine($"Falha ao iniciar a consumer RabbitMQ:{ex.Message}");
             }
 
         }
 
         protected override void AddSubscription(string eventName, EventHandler eventHandler)
         {
-            Tryconnect();
+            TryConnect();
 
             base.AddSubscription(eventName, eventHandler);
 
@@ -83,7 +113,7 @@ namespace TadeuStore.Consumer
 
             try
             {
-                // Direncionar para o Handle do evento
+                // Direcionar para o Handle do evento
 
                 await ProcessEvent(eventName, message);
 
@@ -115,6 +145,16 @@ namespace TadeuStore.Consumer
             }
 
             return await Task.Run(() => new ResponseMessage(new FluentValidation.Results.ValidationResult()));
+        }
+
+        public override void Dispose()
+        {
+            _channel?.Close();
+            _connection?.Close();
+            _channel?.Dispose();
+            _connection?.Dispose();
+
+            base.Dispose();
         }
     }
 }

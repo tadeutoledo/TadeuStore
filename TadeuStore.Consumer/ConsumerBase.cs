@@ -1,4 +1,5 @@
 ﻿using FluentValidation.Results;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using TadeuStore.Domain.EventBus;
 using TadeuStore.Domain.Interfaces.Repositorys;
@@ -7,19 +8,25 @@ using TadeuStore.Domain.Models.Enums;
 
 namespace TadeuStore.Consumer
 {
-    public abstract class ConsumerBase : BackgroundService
+    public abstract class ConsumerBase : BackgroundService, IDisposable
     {
+        
         private readonly ITransacaoRepository _transacaoRepository;
+        private readonly IConfiguration _configuration;
+        private readonly Dictionary<string, EventHandler> _subscriptions;
 
         protected delegate Task<ResponseMessage> EventHandler (IIntegrationEventHandler handler);
 
-        private readonly Dictionary<string, EventHandler> _subscriptions;
-
-        public ConsumerBase(ITransacaoRepository transacaoRepository)
+        public ConsumerBase(
+            ITransacaoRepository transacaoRepository, 
+            IConfiguration configuration)
         {
             _subscriptions = new Dictionary<string, EventHandler>();
             _transacaoRepository = transacaoRepository;
+            _configuration = configuration;
         }
+
+        protected abstract void TryConnect();
 
         protected void CarregarSubscriptions()
         {
@@ -28,7 +35,8 @@ namespace TadeuStore.Consumer
 
         protected virtual void AddSubscription(string eventName, EventHandler handle)
         {
-            _subscriptions.Add(eventName, handle);
+            if (!HasSubscription(eventName))
+                _subscriptions.Add(eventName, handle);
         }
 
         public bool HasSubscription(string eventName) => _subscriptions.ContainsKey(eventName);
@@ -45,7 +53,7 @@ namespace TadeuStore.Consumer
 
                 TipoAutorizacaoTransacao tipoAutorizacao = TipoAutorizacaoTransacao.Aprovado;
 
-                Console.WriteLine($"Transação {eventAutorizar?.IdTransacao} -> {tipoAutorizacao}");
+                Console.WriteLine($"Consumer: {this.GetType().Name} | Transação {eventAutorizar?.IdTransacao} -> {tipoAutorizacao}");
 
                 var transacao = await _transacaoRepository.ObterPorId(eventAutorizar.IdTransacao);
 

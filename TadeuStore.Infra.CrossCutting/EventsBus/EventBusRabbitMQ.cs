@@ -10,7 +10,7 @@ using System.Text.Json;
 using TadeuStore.Domain.EventBus;
 using TadeuStore.Domain.Models;
 
-namespace TadeuStore.Infra.CrossCutting.ServiceBrokerIntegration
+namespace TadeuStore.Infra.CrossCutting.EventsBus
 {
     public class EventBusRabbitMQ : IEventBus
     {
@@ -20,10 +20,8 @@ namespace TadeuStore.Infra.CrossCutting.ServiceBrokerIntegration
         private readonly string _connectionString;
         ILogger<EventBusRabbitMQ> _logger;
 
-        private IConnection connection;
-        private IModel channel;
-
-        private string QueueName => "queue.autorizarpagamento";
+        private IConnection _connection;
+        private IModel _channel;
 
         public EventBusRabbitMQ(
             IConfiguration configuration,
@@ -34,11 +32,9 @@ namespace TadeuStore.Infra.CrossCutting.ServiceBrokerIntegration
             _connectionString = _configuration?.GetSection("MessageBrokerConnection")?["Default"] ?? "";
         }
 
-        public bool IsConnected => connection?.IsOpen ?? false;
-
         private void TryConnect()
         {
-            if (IsConnected)
+            if (_connection?.IsOpen ?? false)
                 return;
 
             try
@@ -48,9 +44,24 @@ namespace TadeuStore.Infra.CrossCutting.ServiceBrokerIntegration
                     HostName = _connectionString,
                 };
 
-                var connection = factory.CreateConnection();
-                channel = connection.CreateModel();
+                var policy = Policy
+                    .Handle<SocketException>()
+                    .Or<BrokerUnreachableException>()
+                    .WaitAndRetry(_retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
+                    {
+                        Console.WriteLine("RabbitMQ Client não pode ser conectar após {TimeOut}s ({ExceptionMessage})", $"{time.TotalSeconds:n1}", ex.Message);
+                    }
+                );
 
+                policy.Execute(() =>
+                {
+                    _connection = factory.CreateConnection();
+                });
+
+                policy.Execute(() =>
+                {
+                    _channel = _connection?.CreateModel();
+                });
             }
             catch (Exception ex)
             {
@@ -78,9 +89,9 @@ namespace TadeuStore.Infra.CrossCutting.ServiceBrokerIntegration
 
             policy.Execute(() =>
             {
-                _logger.LogTrace("Publish event do RabbitMQ: {EventId}", @event.Id);
+                _logger.LogTrace("Publish event RabbitMQ: {EventId}", @event.Id);
 
-                channel.BasicPublish(
+                _channel.BasicPublish(
                     exchange: "",
                     routingKey: eventName,
                     basicProperties: null,
@@ -92,33 +103,35 @@ namespace TadeuStore.Infra.CrossCutting.ServiceBrokerIntegration
             where TRequest : IntegrationEvent
             where TResponse : ResponseMessage
         {
-            channel.QueueDeclare(queue: QueueName,
-                                durable: false,
-                                exclusive: false,
-                                autoDelete: false,
-                                arguments: null);
+            //_channel.QueueDeclare(queue: QueueName,
+            //                    durable: false,
+            //                    exclusive: false,
+            //                    autoDelete: false,
+            //                    arguments: null);
 
 
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += (model, ea) =>
-            {
-                var body = ea.Body;
-                var message = Encoding.UTF8.GetString(body.ToArray());
-                var result = new ResponseMessage(new FluentValidation.Results.ValidationResult());
-                if (result.ValidationResult.IsValid)
-                {
-                    channel.BasicAck(ea.DeliveryTag, false);
-                }
-            };
+            //var consumer = new EventingBasicConsumer(_channel);
+            //consumer.Received += (model, ea) =>
+            //{
+            //    var body = ea.Body;
+            //    var message = Encoding.UTF8.GetString(body.ToArray());
+            //    var result = new ResponseMessage(new FluentValidation.Results.ValidationResult());
+            //    if (result.ValidationResult.IsValid)
+            //    {
+            //        _channel.BasicAck(ea.DeliveryTag, false);
+            //    }
+            //};
 
-            channel.BasicConsume(queue: QueueName, consumer: consumer);
+            //_channel.BasicConsume(queue: QueueName, consumer: consumer);
             throw new NotImplementedException();
         }
 
         public void Dispose()
         {
-            connection?.Dispose();
-            channel?.Dispose();
+            _channel?.Close();
+            _connection?.Close();
+            _channel?.Dispose();
+            _connection?.Dispose();
         }
     }
 }

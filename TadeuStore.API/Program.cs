@@ -12,8 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TadeuStore.Domain.Interfaces.Repositorys;
 using TadeuStore.Domain.Interfaces.Services;
-using TadeuStore.Infra.CrossCutting.ServiceBrokerIntegration;
 using TadeuStore.Domain.EventBus;
+using TadeuStore.Infra.CrossCutting.EventsBus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -114,7 +114,7 @@ builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddTransient<ICartaoCreditoRepository, CartaoCreditoRepository>();
 builder.Services.AddTransient<ITransacaoRepository, TransacaoRepository>();
 
-builder.Services.AddSingleton<IEventBus, EventBusRabbitMQ>();
+builder.Services.AddSingleton<IEventBus, EventBusEasyNetQ>();
 
 
 // Handle Errors
