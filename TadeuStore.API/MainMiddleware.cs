@@ -49,11 +49,19 @@ namespace TadeuStore.API
 
             context.Response.ContentType = "application/json";
 
+            List<string> erros = new List<string>()
+            {
+                { ex.Message?.ToString() ?? "" }
+            };
+
+            if (!string.IsNullOrEmpty(ex.InnerException?.Message))
+                erros.Add(ex.InnerException?.Message);
+
             var json = new ErroDetalhes()
-                {
-                    codigo = context.Response.StatusCode,
-                    erros = new string[] { ex.Message?.ToString() ?? "", ex.InnerException?.Message }
-                };
+            {
+                codigo = context.Response.StatusCode,
+                erros = erros.ToArray()
+            };
             
             await context.Response.WriteAsync(JsonSerializer.Serialize(json));
         }
@@ -72,3 +80,4 @@ namespace TadeuStore.API
         }
     }
 }
+    

@@ -37,10 +37,13 @@ namespace TadeuStore.Domain.FluentValidation
                 .Must(DataValida).WithMessage("O campo {PropertyName} está inválido.");
 
             RuleFor(x => x.Cpf)
-                .NotNull().WithMessage("O campo {PropertyName} não pode ser nulo.")
-                .NotEmpty().WithMessage("O campo {PropertyName} não pode estar vazio.")
-                .MaximumLength(200).WithMessage("O tamanho máximo do campo {PropertyName} é de {MaxLength} caracteres.")
-                .MinimumLength(200).WithMessage("O tamanho mínimo do campo {PropertyName} é de {MinLength} caracteres.");
+                .Must(CpfValido).WithMessage("O campo {PropertyName} está inválido."); ;
+
+        }
+
+        private bool CpfValido(string cpf)
+        {
+            return String.Join("", cpf.Where(c => Char.IsDigit(c))).Length == 11;
         }
 
         private bool DataValida(DateTime date)

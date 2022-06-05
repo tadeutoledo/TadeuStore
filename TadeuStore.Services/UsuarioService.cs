@@ -47,8 +47,8 @@ namespace TadeuStore.Services
         {
             var usuarioCadastrado = await _usuarioRepository.Obter(x => x.Email == usuario.Email);
 
-            if (!usuarioCadastrado.Any())
-                throw new ArgumentException("Este email já está cadastrado."); // Redirecionar página de login
+            if (usuarioCadastrado.Any())
+                throw new ArgumentException("Este email já está cadastrado.");
 
             await _usuarioRepository.Adicionar(usuario);
 

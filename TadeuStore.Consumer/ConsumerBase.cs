@@ -45,6 +45,8 @@ namespace TadeuStore.Consumer
 
         public async Task<ResponseMessage> AutorizarPagamento(IIntegrationEventHandler @event)
         {
+            Console.WriteLine($"{nameof(AutorizarPagamento)} - Recebendo dados.");
+
             ValidationResult validationResult = new ValidationResult();
 
             try

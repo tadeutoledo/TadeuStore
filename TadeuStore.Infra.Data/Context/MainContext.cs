@@ -11,9 +11,13 @@ namespace TadeuStore.Infra.Data.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys())) relationship.DeleteBehavior = DeleteBehavior.ClientSetNull;
 
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Transacao>()
+                .Property(p => p.ValorPago)
+                .HasColumnType("decimal(18,4)");
         }
 
         public DbSet<Aplicativo> Aplicativos { get; set; }

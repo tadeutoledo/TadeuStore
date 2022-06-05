@@ -22,7 +22,7 @@ static IHostBuilder CreateHostBuilder(string[] args) =>
 
             services.AddTransient<MainContext>();
             services.AddTransient<ITransacaoRepository, TransacaoRepository>();
-            services.AddHostedService<EasyNetQ_Consumer>();
+            services.AddHostedService<RabbitMQ_Consumer>();
         });
 
 

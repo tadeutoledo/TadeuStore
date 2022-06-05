@@ -31,7 +31,7 @@ namespace TadeuStore.API.Controllers
         }
 
         [HttpPost]
-        [Route("{id:Guid}/Comprar")]
+        [Route("{id:Guid}/comprar")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ErroDetalhes))]
         [Authorize]
         public async Task<ActionResult> Comprar(CartaoCreditoRequisicaoViewModel viewModel, Guid id)
