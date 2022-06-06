@@ -31,7 +31,7 @@ builder.Services.AddDbContext<MainContext>(o =>
 
 builder.Services.AddDistributedRedisCache(options =>
 {
-    options.Configuration = "localhost";
+    options.Configuration = builder.Configuration.GetSection("CacheConnection")?["Default"] ?? "";
     options.InstanceName = "APITadeuStore";
 });
 
