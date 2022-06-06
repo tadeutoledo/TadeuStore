@@ -52,7 +52,7 @@ namespace TadeuStore.Services
             return aplicativos;
         }
 
-        public async Task Comprar(Guid id, CartaoCredito cartao, bool salvarCartao = false)
+        public async Task<Transacao> Comprar(Guid id, CartaoCredito cartao, bool salvarCartao = false)
         {
             if (!cartao.Validar())
                 throw new ArgumentException("Cartão de crédito inválido.");
@@ -101,6 +101,8 @@ namespace TadeuStore.Services
             transacao = await _transacaoRepository.Adicionar(transacao);
 
             _bus.Publish(new AutorizarPagamentoIntegrationEvent(transacao.Id));
+
+            return transacao;
         }
     }
 }

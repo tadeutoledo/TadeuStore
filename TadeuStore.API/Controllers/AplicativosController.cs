@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using TadeuStore.Domain.Interfaces.Services;
 using TadeuStore.Domain.Models;
 using TadeuStore.Domain.ViewModels.Requisicao;
+using TadeuStore.Domain.ViewModels.Resposta;
 
 namespace TadeuStore.API.Controllers
 {
@@ -33,11 +34,12 @@ namespace TadeuStore.API.Controllers
         [HttpPost]
         [Route("{id:Guid}/comprar")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ErroDetalhes))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ComprarAplicativoRespostaViewModel))]
         [Authorize]
         public async Task<ActionResult> Comprar(CartaoCreditoRequisicaoViewModel viewModel, Guid id)
         {            
-            await _aplicativoService.Comprar(id, _mapper.Map<CartaoCredito>(viewModel), viewModel.Salvar);
-            return Ok();
+            var response = await _aplicativoService.Comprar(id, _mapper.Map<CartaoCredito>(viewModel), viewModel.Salvar);
+            return Ok(_mapper.Map<ComprarAplicativoRespostaViewModel>(response));
         }
     }
 }

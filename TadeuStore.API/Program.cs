@@ -91,7 +91,7 @@ builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddTransient<ICartaoCreditoRepository, CartaoCreditoRepository>();
 builder.Services.AddTransient<ITransacaoRepository, TransacaoRepository>();
 
-builder.Services.AddSingleton<IEventBus, EventBusEasyNetQ>();
+builder.Services.AddSingleton<IEventBus, EventBusRabbitMQ>();
 builder.Services.AddSingleton<ICacheConnection, CacheConnection>();
 
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();

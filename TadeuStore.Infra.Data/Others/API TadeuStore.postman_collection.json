@@ -1,0 +1,135 @@
+{
+	"info": {
+		"_postman_id": "80e9bee9-5b5c-4b1f-8c69-8a2c7cda1224",
+		"name": "API TadeuStore",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "989496"
+	},
+	"item": [
+		{
+			"name": "Usuario",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"teste@gmail.com\",\r\n    \"senha\": \"!q2w3e$R\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_api}}/api/v1/Usuarios/login",
+							"host": [
+								"{{url_api}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"Usuarios",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nome\": \"Tadeu Toledo Mathias\",\r\n  \"email\": \"tadeu@gmail.com\",\r\n  \"senha\": \"Abc123!@#\",\r\n  \"cpf\": \"16183488855\",\r\n  \"dataNascimento\": \"1990-05-31T12:47:54.345Z\",\r\n  \"sexo\": 1,\r\n  \"endereco\": \"Rua X 786 Casa 2\",\r\n  \"complemento\": \"Rua do Banco do Brasil\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_api}}/api/Usuarios",
+							"host": [
+								"{{url_api}}"
+							],
+							"path": [
+								"api",
+								"Usuarios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Comprar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_api}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"numeroCartao\": \"5382 0220 4563 5357\",\r\n  \"nomeImpresso\": \"JOSE ALGUMA COISA\",\r\n  \"bandeira\": 2,\r\n  \"dataExpiracao\": \"12/2023\",\r\n  \"codigoSeguranca\": \"625\",\r\n  \"salvar\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_api}}/api/v1/Aplicativos/{{id_aplicativo}}/comprar",
+							"host": [
+								"{{url_api}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"Aplicativos",
+								"{{id_aplicativo}}",
+								"comprar"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Aplicativos",
+			"item": [
+				{
+					"name": "Obter",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_api}}/api/v1/Aplicativos",
+							"host": [
+								"{{url_api}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"Aplicativos"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
