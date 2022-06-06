@@ -29,18 +29,18 @@ builder.Services.AddDbContext<MainContext>(o =>
     o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));   
 });
 
-//builder.Services.AddDistributedRedisCache(options =>
-//{
-//    options.Configuration = "localhost";
-//    options.InstanceName = "APITadeuStore";
-//});
-
-builder.Services.AddDistributedSqlServerCache(options =>
+builder.Services.AddDistributedRedisCache(options =>
 {
-    options.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.SchemaName = "API";
-    options.TableName = "CACHE";
+    options.Configuration = "localhost";
+    options.InstanceName = "APITadeuStore";
 });
+
+//builder.Services.AddDistributedSqlServerCache(options =>
+//{
+//    options.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//    options.SchemaName = "API";
+//    options.TableName = "CACHE";
+//});
 
 builder.Services.AddLogging();
 
@@ -91,7 +91,7 @@ builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddTransient<ICartaoCreditoRepository, CartaoCreditoRepository>();
 builder.Services.AddTransient<ITransacaoRepository, TransacaoRepository>();
 
-builder.Services.AddSingleton<IEventBus, EventBusRabbitMQ>();
+builder.Services.AddSingleton<IEventBus, EventBusEasyNetQ>();
 builder.Services.AddSingleton<ICacheConnection, CacheConnection>();
 
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();

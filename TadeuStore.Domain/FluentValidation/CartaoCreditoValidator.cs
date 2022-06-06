@@ -20,7 +20,7 @@ namespace TadeuStore.Domain.FluentValidation
                 .MaximumLength(7).WithMessage("O campo {PropertyName} deve estar no formado [MM/yyyy].")
                 .Must(ValidarDataExpiracao).WithMessage("O campo {PropertyName} deve estar no formado [MM/yyyy].");
 
-            RuleFor(x => x.Numero)
+            RuleFor(x => x.NumeroCartao)
                 .CreditCard().WithMessage("O campo {PropertyName} está inválido.");
 
             RuleFor(x => x.CodigoSeguranca)

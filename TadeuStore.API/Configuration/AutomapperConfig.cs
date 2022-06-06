@@ -15,7 +15,9 @@ namespace TadeuStore.API.Configuration
 
             CreateMap<CadastrarUsuarioRespostaViewModel, Usuario>().ReverseMap();
 
-            CreateMap<CartaoCreditoRequisicaoViewModel, CartaoCredito>().ReverseMap();
+            CreateMap<CartaoCreditoRequisicaoViewModel, CartaoCredito>()
+                .ForMember(dst => dst.Numero, map => map.MapFrom(src => src.NumeroCartao))
+                .ReverseMap();
         }
     }
 }

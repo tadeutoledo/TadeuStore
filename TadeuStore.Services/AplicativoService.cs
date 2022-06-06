@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Distributed;
-using Newtonsoft.Json;
 using System.Security.Claims;
-using System.Text.Json;
 using TadeuStore.Domain.EventBus;
 using TadeuStore.Domain.Interfaces;
 using TadeuStore.Domain.Interfaces.Repositorys;
@@ -78,9 +75,9 @@ namespace TadeuStore.Services
             if (usuario == null)
                 throw new ArgumentException($"O usuário [{idUsuario?.ToString()}] não foi encontrado");
 
-            var aplicativo = _aplicativoRepository.ObterPorId(id);
+            var aplicativo = await _aplicativoRepository.ObterPorId(id);
 
-            if (usuario == null)
+            if (aplicativo == null)
                 throw new ArgumentException($"O aplicativo [{id}] não foi encontrado");
 
             cartao = usuario.CartoesCredito?.Where(x => x.Numero == cartao.Numero && x.UsuarioId == usuario.Id)?.FirstOrDefault() ?? cartao;

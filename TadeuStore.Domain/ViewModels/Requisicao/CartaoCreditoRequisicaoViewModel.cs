@@ -4,7 +4,7 @@ namespace TadeuStore.Domain.ViewModels.Requisicao
 {
     public class CartaoCreditoRequisicaoViewModel
     {
-        public string Numero { get; set; }
+        public string NumeroCartao { get; set; }
         public string NomeImpresso { get; set; }
         public TipoBandeiraCartao Bandeira { get; set; }
         public string DataExpiracao { get; set; }
