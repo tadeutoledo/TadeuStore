@@ -11,5 +11,6 @@ Tecnologias:
 * Redis e SqlServerCache para gerencimaneto de Cache.
 
 Obsrevações:
+* Iniciar os projetos 'TadeuStore.Consumer' e 'TadeuStore.API' como inicialização múltipla;
 * Necessário ter a extensão "Data storage and processing" do VS para inicialização do banco de dados localmente;
 * Executar o Script da tabela de cache do SqlServerChace, caso for usar o mesmo.
