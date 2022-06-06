@@ -20,7 +20,7 @@ namespace TadeuStore.Services
         private readonly ICartaoCreditoRepository _cartaoCreditoRepository;
         private readonly ITransacaoRepository _transacaoRepository;
         private readonly IEventBus _bus;
-        private readonly IDistributedCache _cache;
+        private readonly ICacheConnection _cache;
 
         public AplicativoService(
             IHttpContextAccessor httpContextAccessor,
@@ -29,7 +29,7 @@ namespace TadeuStore.Services
             ICartaoCreditoRepository cartaoCreditoRepository,
             ITransacaoRepository transacaoRepository,
             IEventBus bus,
-            IDistributedCache cache)
+            ICacheConnection cache)
         {
             _httpContextAccessor = httpContextAccessor;
             _usuarioRepository = usuarioRepository;
@@ -43,14 +43,14 @@ namespace TadeuStore.Services
         public async Task<IEnumerable<Aplicativo>> ObterTodos()
         {
             var chaveCache = "Aplicativos";
-            var data = await _cache.GetStringAsync(chaveCache);
+            var aplicativos = await _cache.GetAsync<IEnumerable<Aplicativo>>(chaveCache);
 
-            if (!string.IsNullOrEmpty(data))
-                return JsonConvert.DeserializeObject<List<Aplicativo>>(data);
+            if (aplicativos?.Any() ?? false)
+                return aplicativos;
 
-            var aplicativos = await _aplicativoRepository.ObterTodos();
+            aplicativos = await _aplicativoRepository.ObterTodos();
 
-            await _cache.SetStringAsync(chaveCache, JsonConvert.SerializeObject(aplicativos));
+            await _cache.SetAsync(chaveCache, aplicativos, TimeSpan.FromMinutes(3));
 
             return aplicativos;
         }
