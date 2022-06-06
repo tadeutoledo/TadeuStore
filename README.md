@@ -10,6 +10,6 @@ Tecnologias:
 * Swagger para documentação das rotas;
 * Redis e SqlServerCache para gerencimaneto de Cache.
 
--> Obsrevações:
+Obsrevações:
 * Necessário ter o complemento "Data storage and processing" do VS para inicialização do banco de dados localmente;
 * Executar o Script da tabela de cache do SqlServerChace antes, caso for usar o mesmo.
