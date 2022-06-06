@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json;
 using System.Security.Claims;
+using System.Text.Json;
 using TadeuStore.Domain.EventBus;
+using TadeuStore.Domain.Interfaces;
 using TadeuStore.Domain.Interfaces.Repositorys;
 using TadeuStore.Domain.Interfaces.Services;
 using TadeuStore.Domain.Models;
@@ -16,6 +20,7 @@ namespace TadeuStore.Services
         private readonly ICartaoCreditoRepository _cartaoCreditoRepository;
         private readonly ITransacaoRepository _transacaoRepository;
         private readonly IEventBus _bus;
+        private readonly IDistributedCache _cache;
 
         public AplicativoService(
             IHttpContextAccessor httpContextAccessor,
@@ -23,7 +28,8 @@ namespace TadeuStore.Services
             IAplicativoRepository aplicativoRepository,
             ICartaoCreditoRepository cartaoCreditoRepository,
             ITransacaoRepository transacaoRepository,
-            IEventBus bus)
+            IEventBus bus,
+            IDistributedCache cache)
         {
             _httpContextAccessor = httpContextAccessor;
             _usuarioRepository = usuarioRepository;
@@ -31,11 +37,22 @@ namespace TadeuStore.Services
             _cartaoCreditoRepository = cartaoCreditoRepository;
             _transacaoRepository = transacaoRepository;
             _bus = bus;
+            _cache = cache;
         }
 
         public async Task<IEnumerable<Aplicativo>> ObterTodos()
         {
-            return await _aplicativoRepository.ObterTodos();
+            var chaveCache = "Aplicativos";
+            var data = await _cache.GetStringAsync(chaveCache);
+
+            if (!string.IsNullOrEmpty(data))
+                return JsonConvert.DeserializeObject<List<Aplicativo>>(data);
+
+            var aplicativos = await _aplicativoRepository.ObterTodos();
+
+            await _cache.SetStringAsync(chaveCache, JsonConvert.SerializeObject(aplicativos));
+
+            return aplicativos;
         }
 
         public async Task Comprar(Guid id, CartaoCredito cartao, bool salvarCartao = false)

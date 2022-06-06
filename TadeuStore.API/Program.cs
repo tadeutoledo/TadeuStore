@@ -27,6 +27,19 @@ builder.Services.AddDbContext<MainContext>(o =>
     o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));   
 });
 
+builder.Services.AddDistributedRedisCache(options =>
+{
+    options.Configuration = "localhost";
+    options.InstanceName = "APITadeuStore";
+});
+
+//builder.Services.AddDistributedSqlServerCache(options =>
+//{
+//    options.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//    options.SchemaName = "API";
+//    options.TableName = "CACHE";
+//});
+
 builder.Services.AddLogging();
 
 // Services
