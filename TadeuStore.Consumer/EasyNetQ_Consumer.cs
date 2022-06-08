@@ -34,11 +34,6 @@ namespace TadeuStore.Consumer
             Console.WriteLine($"Iniciando {nameof(EasyNetQ_Consumer)}...");
 
             CarregarSubscriptions();
-
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                await Task.Delay((int)TimeSpan.FromSeconds(3).TotalMilliseconds, stoppingToken);
-            }
         }
 
         protected override void TryConnect()
@@ -49,7 +44,7 @@ namespace TadeuStore.Consumer
             var policy = Policy
                 .Handle<EasyNetQException>()
                 .Or<BrokerUnreachableException>()
-                .WaitAndRetry(3, retry => TimeSpan.FromSeconds(retry * 3));
+                .WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(5, retryAttempt)));
 
             policy.Execute(() => { _bus = RabbitHutch.CreateBus(_connectionString); });
         }

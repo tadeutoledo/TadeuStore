@@ -93,7 +93,7 @@ namespace TadeuStore.Infra.CrossCutting.EventsBus
 
             policy.Execute(() =>
             {
-                _logger.LogTrace("Publish event RabbitMQ: {EventId}", @event.Id);
+                _logger.LogTrace("Publish evento RabbitMQ: {EventId}", @event.Id);
 
                 _channel.BasicPublish(
                     exchange: "",

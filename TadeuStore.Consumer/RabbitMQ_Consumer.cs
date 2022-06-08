@@ -7,6 +7,7 @@ using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using System.Net.Sockets;
 using System.Text;
+using System.Web;
 using TadeuStore.Domain.EventBus;
 using TadeuStore.Domain.Interfaces.Repositorys;
 using TadeuStore.Domain.Models;
@@ -16,7 +17,6 @@ namespace TadeuStore.Consumer
     public class RabbitMQ_Consumer : ConsumerBase
 
     {
-        const int _retryCount = 3;
         private readonly string _connectionString;
         private IConnection _connection;
         private IModel _channel;
@@ -36,11 +36,6 @@ namespace TadeuStore.Consumer
             Console.WriteLine($"Iniciando {nameof(RabbitMQ_Consumer)}...");
 
             CarregarSubscriptions();
-
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                await Task.Delay((int)TimeSpan.FromSeconds(3).TotalMilliseconds, stoppingToken);
-            }
         }
 
 
@@ -53,22 +48,22 @@ namespace TadeuStore.Consumer
 
                 var factory = new ConnectionFactory()
                 {
-                    HostName = _connectionString
+                    Uri = new Uri(_connectionString),
+                    RequestedConnectionTimeout = TimeSpan.FromSeconds(30),
+                    ContinuationTimeout = TimeSpan.FromSeconds(30),
+                    RequestedHeartbeat = TimeSpan.FromSeconds(30),
                 };
 
                 var policy = Policy
                     .Handle<SocketException>()
                     .Or<BrokerUnreachableException>()
-                    .WaitAndRetry(_retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
-                    {
-                        Console.WriteLine("RabbitMQ Client não pode ser conectar após {TimeOut}s ({ExceptionMessage})", $"{time.TotalSeconds:n1}", ex.Message);
-                    }
-                );
+                    .WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(5, retryAttempt)));
 
                 policy.Execute(() =>
                 {
                     _connection = factory.CreateConnection();
                 });
+                
 
                 policy.Execute(() =>
                 {

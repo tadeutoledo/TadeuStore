@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "TadeuStore.Consumer": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

@@ -32,3 +32,13 @@ services:
       - ASPNETCORE_URLS=http://*:5001;http://*:5003
     depends_on:
       - rabbitmq
+
+  consumer:
+    image: tadeustore-consumer:latest
+    container_name: tadeustore-consumer-container
+    build:
+      context: ../TadeuStore/
+      dockerfile: TadeuStore.Consumer/Dockerfile
+    depends_on:
+      - rabbitmq
+      - web-api

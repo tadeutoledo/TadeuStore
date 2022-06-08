@@ -23,7 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 - Infra", "4 - Infra", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 - Consumer", "0 - Consumer", "{A69E1264-9D99-45C6-B7BB-3002D0F26EF3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TadeuStore.Consumer", "TadeuStore.Consumer\TadeuStore.Consumer.csproj", "{5F03D7EA-D1CD-4DA7-A5AC-EBC52B2A4ADB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TadeuStore.Consumer", "TadeuStore.Consumer\TadeuStore.Consumer.csproj", "{5F03D7EA-D1CD-4DA7-A5AC-EBC52B2A4ADB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
