@@ -7,6 +7,7 @@ using RabbitMQ.Client.Exceptions;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Web;
 using TadeuStore.Domain.EventBus;
 using TadeuStore.Domain.Models;
 
@@ -41,15 +42,18 @@ namespace TadeuStore.Infra.CrossCutting.EventsBus
             {
                 var factory = new ConnectionFactory()
                 {
-                    HostName = _connectionString,
+                    Uri = new Uri(_connectionString),
+                    RequestedConnectionTimeout = TimeSpan.FromSeconds(30),
+                    ContinuationTimeout = TimeSpan.FromSeconds(30),
+                    RequestedHeartbeat = TimeSpan.FromSeconds(30),
                 };
 
                 var policy = Policy
                     .Handle<SocketException>()
                     .Or<BrokerUnreachableException>()
-                    .WaitAndRetry(_retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
+                    .WaitAndRetry(_retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, retry, context) =>
                     {
-                        Console.WriteLine("RabbitMQ Client não pode ser conectar após {TimeOut}s ({ExceptionMessage})", $"{time.TotalSeconds:n1}", ex.Message);
+                        _logger.LogWarning(ex, "A conexão não foi realizada após {Timeout}s ({ExceptionMessage})", $"{time.TotalSeconds:n1}", ex.Message);
                     }
                 );
 

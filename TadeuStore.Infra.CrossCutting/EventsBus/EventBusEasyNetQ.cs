@@ -58,7 +58,7 @@ namespace TadeuStore.Infra.CrossCutting.EventsBus
                 _logger.LogWarning(ex, "O Publish não foi realizado: {EventId} após {Timeout}s ({ExceptionMessage})", @event.Id, $"{time.TotalSeconds:n1}", ex.Message);
             });
 
-            await _bus.PubSub.PublishAsync<IIntegrationEventHandler>(@event);
+            await policy.Execute(() => _bus.PubSub.PublishAsync<IIntegrationEventHandler>(@event));
         }
 
         public void Subscribe<TRequest, TResponse>()

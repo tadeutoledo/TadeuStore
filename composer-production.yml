@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: tadeustore-rabbit
+    environment:
+      - RABBITMQ_DEFAULT_USER=master
+      - RABBITMQ_DEFAULT_PASS=master
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  redis:
+    image: redis
+    container_name: tadeustore-redis
+    command: redis-server
+    ports:
+      - "6379:6379"
+
+  web-api:
+    image: tadeustore-api:latest
+    container_name: tadeustore-api-container
+    build:
+      context: ../TadeuStore/
+      dockerfile: TadeuStore.API/Dockerfile
+    ports:
+      - 5001:5001
+      - 5003:5003
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://*:5001;http://*:5003
+    depends_on:
+      - rabbitmq
