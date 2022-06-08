@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Polly;
 using Polly.Retry;
@@ -18,16 +19,19 @@ namespace TadeuStore.Consumer
 
     {
         private readonly string _connectionString;
+        private readonly ILogger<RabbitMQ_Consumer> _logger;
         private IConnection _connection;
         private IModel _channel;
 
         public RabbitMQ_Consumer(
             ITransacaoRepository transacaoRepository,
-            IConfiguration configuration) 
+            IConfiguration configuration,
+            ILogger<RabbitMQ_Consumer> logger) 
             : base(
                   transacaoRepository, 
                   configuration)
         {
+            _logger = logger;
             _connectionString = configuration.GetSection("MessageBrokerConnection")?["Default"] ?? "";
         }
 
@@ -37,7 +41,6 @@ namespace TadeuStore.Consumer
 
             CarregarSubscriptions();
         }
-
 
         protected override void TryConnect()
         {
@@ -57,7 +60,10 @@ namespace TadeuStore.Consumer
                 var policy = Policy
                     .Handle<SocketException>()
                     .Or<BrokerUnreachableException>()
-                    .WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(5, retryAttempt)));
+                    .WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(5, retryAttempt)), (ex, time, retry) =>
+                    {
+                        _logger.LogWarning($"{retry} tentativa RabbitMq. Erro: {ex.Message}");
+                    });
 
                 policy.Execute(() =>
                 {
@@ -73,7 +79,7 @@ namespace TadeuStore.Consumer
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Falha ao iniciar a consumer RabbitMQ:{ex.Message}");
+                _logger.LogError(-1, ex, "Falha ao iniciar o consumer RabbitMQ.");
             }
 
         }
@@ -117,7 +123,7 @@ namespace TadeuStore.Consumer
             catch (Exception ex)
             {
                 _channel.BasicNack(eventArgs.DeliveryTag, multiple: false, true);
-                Console.WriteLine("Erro ao processo evento: " + ex.Message);
+                _logger.LogError(-1, ex, "Erro ao processar o evento.");
             }
         }
 

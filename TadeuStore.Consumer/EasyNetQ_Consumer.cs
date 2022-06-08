@@ -1,5 +1,6 @@
 ﻿using EasyNetQ;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Polly;
 using RabbitMQ.Client.Exceptions;
@@ -17,15 +18,18 @@ namespace TadeuStore.Consumer
     public class EasyNetQ_Consumer : ConsumerBase
     {
         private readonly string _connectionString;
+        private readonly ILogger<EasyNetQ_Consumer> _logger;
         private IBus _bus;
 
         public EasyNetQ_Consumer(
             ITransacaoRepository transacaoRepository, 
-            IConfiguration configuration ) 
+            IConfiguration configuration,
+            ILogger<EasyNetQ_Consumer> logger) 
             : base(
                   transacaoRepository,
                   configuration)
         {
+            _logger = logger;
             _connectionString = configuration.GetSection("MessageBrokerConnection")?["EasyNetQ"] ?? "";
         }
 
@@ -38,15 +42,28 @@ namespace TadeuStore.Consumer
 
         protected override void TryConnect()
         {
-            if (_bus?.Advanced?.IsConnected ?? false)
-                return;
+            try
+            {
+                if (_bus?.Advanced?.IsConnected ?? false)
+                    return;
 
-            var policy = Policy
-                .Handle<EasyNetQException>()
-                .Or<BrokerUnreachableException>()
-                .WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(5, retryAttempt)));
+                var policy = Policy
+                    .Handle<EasyNetQException>()
+                    .Or<BrokerUnreachableException>()
+                    .WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(5, retryAttempt)), (ex, time, retry) =>
+                    {
+                        _logger.LogWarning($"{retry} tentativa EasyNetQ. Erro: {ex.Message}");
+                    });
 
-            policy.Execute(() => { _bus = RabbitHutch.CreateBus(_connectionString); });
+                policy.Execute(() =>
+                {
+                    _bus = RabbitHutch.CreateBus(_connectionString);
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(-1, ex, "Falha ao iniciar o consumer EasyNetQ.");
+            }
         }
 
         protected override async void AddSubscription(string eventName, EventHandler eventHandler)
@@ -60,16 +77,24 @@ namespace TadeuStore.Consumer
         }
         private async Task<ResponseMessage> ProcessEvent(string eventName, IIntegrationEventHandler message)
         {
-            if (HasSubscription(eventName))
+            try
             {
-                var result = await ExecuteEvent(eventName, message);
-
-                if (!result.ValidationResult.IsValid)
+                if (HasSubscription(eventName))
                 {
-                    var errorMessage = "";
-                    result.ValidationResult.Errors.ForEach(x => errorMessage += $"{x.ErrorCode} - {x.ErrorMessage} |");
-                    throw new Exception(errorMessage);
+                    var result = await ExecuteEvent(eventName, message);
+
+                    if (!result.ValidationResult.IsValid)
+                    {
+                        var errorMessage = "";
+                        result.ValidationResult.Errors.ForEach(x => errorMessage += $"{x.ErrorCode} - {x.ErrorMessage} |");
+                        throw new Exception(errorMessage);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(-1, ex, "Erro ao processar o evento.");
+                throw;
             }
 
             return await Task.Run(() => new ResponseMessage(new FluentValidation.Results.ValidationResult()));
