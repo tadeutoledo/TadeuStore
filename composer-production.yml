@@ -11,6 +11,20 @@ services:
       - 5672:5672
       - 15672:15672
 
+  sql-server:
+    image: mcr.microsoft.com/mssql/rhel/server:2019-CU1-rhel-8
+    container_name: tadeustore-sql-container
+    working_dir: /usr/src/app
+    volumes:
+      - /var/opt/mssql
+      - ./:/usr/src/app
+    command: sh -c ' chmod +x ./Sql/entrypoint.sh; ./Sql/entrypoint.sh & /opt/mssql/bin/sqlservr;'
+    environment:
+      SA_PASSWORD: "Password!@#"
+      ACCEPT_EULA: "Y"
+    ports:
+      - 1433:1433
+
   redis:
     image: redis
     container_name: tadeustore-redis

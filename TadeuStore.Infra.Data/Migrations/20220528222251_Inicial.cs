@@ -25,7 +25,7 @@ namespace TadeuStore.Infra.Data.Migrations
                 });
 
             // Mock dados
-            InsertAplicativos(migrationBuilder);
+            //InsertAplicativos(migrationBuilder);
         }
 
         private void InsertAplicativos(MigrationBuilder migrationBuilder)

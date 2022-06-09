@@ -24,8 +24,4 @@
     <ProjectReference Include="..\TadeuStore.Domain\TadeuStore.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Others\Scripts\" />
-  </ItemGroup>
-
 </Project>
