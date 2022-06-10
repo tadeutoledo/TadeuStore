@@ -9,4 +9,4 @@ Tecnologias:
 * RabbitMQ e EasyNetQ para gerenciamento de filas;
 * Swagger para documentação das rotas;
 * Redis e SqlServerCache para gerencimaneto de Cache;
-* Docker para gerenciar e conteinerizar as Aplicações.
+* Docker para gerenciar e conteinerizar as aplicações.
