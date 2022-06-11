@@ -52,7 +52,7 @@ namespace TadeuStore.Services
             return aplicativos;
         }
 
-        public async Task<Transacao> Comprar(Guid id, CartaoCredito cartao, bool salvarCartao = false)
+        public async Task<Transacao> Comprar(Guid id, decimal valorPago, CartaoCredito cartao, bool salvarCartao = false)
         {
             if (!cartao.Validar())
                 throw new ArgumentException("Cartão de crédito inválido.");
@@ -93,7 +93,7 @@ namespace TadeuStore.Services
                 AplicativoId = id,
                 UsuarioId = usuario.Id,
                 CartaoCreditoId = cartao?.Id == Guid.Empty ? null : cartao?.Id,
-                ValorPago = (decimal)new Random().NextDouble(),
+                ValorPago = valorPago,
                 DataHoraCompra = DateTime.Now,
                 StatusAutorizacao = (int)TipoAutorizacaoTransacao.EmProcessamento
             };

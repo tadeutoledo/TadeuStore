@@ -36,9 +36,9 @@ namespace TadeuStore.API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ErroDetalhes))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ComprarAplicativoRespostaViewModel))]
         [Authorize]
-        public async Task<ActionResult> Comprar(CartaoCreditoRequisicaoViewModel viewModel, Guid id)
+        public async Task<ActionResult> Comprar(ComprarAplicativoRequisicaoViewModel viewModel, Guid id)
         {            
-            var response = await _aplicativoService.Comprar(id, _mapper.Map<CartaoCredito>(viewModel), viewModel.Salvar);
+            var response = await _aplicativoService.Comprar(id, viewModel.ValorPago, _mapper.Map<CartaoCredito>(viewModel.Cartao), viewModel.Cartao.Salvar);
             return Ok(_mapper.Map<ComprarAplicativoRespostaViewModel>(response));
         }
     }
