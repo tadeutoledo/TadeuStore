@@ -1,6 +1,6 @@
 
 #!/bin/bash
-wait_time=20s
+wait_time=90s
 password="Password!@#"
 
 # wait for SQL Server to come up
