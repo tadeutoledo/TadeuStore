@@ -9,4 +9,5 @@ Tecnologias:
 * RabbitMQ e EasyNetQ para gerenciamento de filas;
 * Swagger para documentação das rotas;
 * Redis e SqlServerCache para gerencimaneto de Cache;
-* Docker para gerenciar e conteinerizar as aplicações.
+* SonarQube para inspeção contínua da qualidade do software, "code smells" e potenciais bugs;
+* Docker para gerenciar e conteinerizar as aplicações acima citadas.
