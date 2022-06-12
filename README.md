@@ -10,4 +10,4 @@ Tecnologias:
 * Swagger para documentação das rotas;
 * Redis e SqlServerCache para gerencimaneto de Cache;
 * SonarQube para inspeção contínua da qualidade do software, "code smells" e potenciais bugs;
-* Docker para gerenciar e conteinerizar as aplicações acima citadas.
+* Docker para gerenciar e conteinerizar as aplicações como um todo.
