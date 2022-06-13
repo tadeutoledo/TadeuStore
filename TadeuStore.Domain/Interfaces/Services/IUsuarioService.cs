@@ -5,7 +5,7 @@ namespace TadeuStore.Domain.Interfaces.Services
 {
     public interface IUsuarioService
     {
-        Task<CadastrarUsuarioRespostaViewModel> Adicionar(Usuario modelView);
+        Task<CadastrarUsuarioRespostaViewModel> Cadastrar(Usuario modelView);
         Task<LoginRespostaViewModel> Login(Usuario usuario);
     }
 }

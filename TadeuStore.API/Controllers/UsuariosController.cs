@@ -27,7 +27,7 @@ namespace TadeuStore.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CadastrarUsuarioRequisicaoViewModel))]
         public async Task<ActionResult> Cadastrar(CadastrarUsuarioRequisicaoViewModel viewModel)
         {            
-            return Ok(await _usuariosService.Adicionar(_mapper.Map<Usuario>(viewModel)));
+            return Ok(await _usuariosService.Cadastrar(_mapper.Map<Usuario>(viewModel)));
         }
 
 

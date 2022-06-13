@@ -23,6 +23,8 @@ namespace TadeuStore.Services
             _usuarioRepository = usuarioRepository;
         }
 
+        private string EncriptarSenha(string senha) => BCrypt.Net.BCrypt.HashPassword(senha);
+
         private string GerarToken(Usuario usuario)
         {
             var keySettings = "DECC53D4-BF3D-41D7-A5B8-CF2F25F98E7F";
@@ -43,12 +45,14 @@ namespace TadeuStore.Services
             return tokenHandler.WriteToken(token);
         }
 
-        public async Task<CadastrarUsuarioRespostaViewModel> Adicionar(Usuario usuario)
+        public async Task<CadastrarUsuarioRespostaViewModel> Cadastrar(Usuario usuario)
         {
             var usuarioCadastrado = await _usuarioRepository.Obter(x => x.Email == usuario.Email);
 
             if (usuarioCadastrado.Any())
                 throw new ArgumentException("Este email já está cadastrado.");
+
+            usuario.Senha = EncriptarSenha(usuario.Senha);
 
             await _usuarioRepository.Adicionar(usuario);
 
@@ -57,12 +61,14 @@ namespace TadeuStore.Services
 
         public async Task<LoginRespostaViewModel> Login(Usuario usuario)
         {
-            var usuarioCadastrado = await _usuarioRepository.Obter(x => x.Email == usuario.Email && x.Senha == usuario.Senha);
+            var usuarios = await _usuarioRepository.Obter(x => x.Email == usuario.Email);
 
-            if (!usuarioCadastrado.Any())
+            var usuarioCadastrado = usuarios.FirstOrDefault(x => BCrypt.Net.BCrypt.Verify(usuario.Senha, x.Senha));
+
+            if (usuarioCadastrado == null)
                 throw new ArgumentException("Email ou senha incorretos.");
             
-            var token = GerarToken(usuarioCadastrado.FirstOrDefault());
+            var token = GerarToken(usuarioCadastrado);
 
             return new LoginRespostaViewModel()
             {
