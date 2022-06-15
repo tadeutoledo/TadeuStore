@@ -63,7 +63,7 @@ namespace TadeuStore.Services
         {
             var usuarios = await _usuarioRepository.Obter(x => x.Email == usuario.Email);
 
-            var usuarioCadastrado = usuarios.FirstOrDefault(x => BCrypt.Net.BCrypt.Verify(usuario.Senha, x.Senha));
+            var usuarioCadastrado = usuarios?.FirstOrDefault(x => BCrypt.Net.BCrypt.Verify(usuario.Senha, x.Senha));
 
             if (usuarioCadastrado == null)
                 throw new ArgumentException("Email ou senha incorretos.");
