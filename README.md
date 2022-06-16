@@ -11,3 +11,8 @@ Tecnologias:
 * Redis e SqlServerCache para gerencimaneto de Cache;
 * SonarQube para inspeção contínua da qualidade do software, "code smells" e potenciais bugs;
 * Docker para gerenciar e conteinerizar as aplicações como um todo.
+
+-> Executar Docker compose: 
+docker-compose -f compose-production.yml up 
+
+<i>*esperar 2 minutos para rodar os scripts do DB.</i>
