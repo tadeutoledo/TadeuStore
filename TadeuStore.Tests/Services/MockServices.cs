@@ -43,6 +43,31 @@ namespace TadeuStore.Tests.Services
             return usuario.Generate(quantidade);
         }
 
+        public IEnumerable<Aplicativo> GerarAplicativos(int quantidade)
+        {
+            var aplicativo = new Faker<Aplicativo>("pt_BR")
+                .StrictMode(true)
+                .RuleFor(c => c.Empresa, (f, c) => f.Company.CompanyName())
+                .RuleFor(c => c.Nome, (f, c) => f.Lorem.Sentence(2))
+                .RuleFor(c => c.Categoria, (f, c) => f.Lorem.Sentence(1))
+                .RuleFor(c => c.DataPublicacao, (f, c) => f.Date.Past(5))                
+                .RuleFor(c => c.Id, (f, c) => Guid.NewGuid());
+
+            return aplicativo.Generate(quantidade);
+        }
+
+        public IEnumerable<CartaoCredito> GerarCartaoCreditoValido(int quantidade)
+        {
+            var cartao = new Faker<CartaoCredito>("pt_BR")
+                .RuleFor(c => c.Numero, (f, c) => f.Finance.CreditCardNumber())
+                .RuleFor(c => c.NomeImpresso, (f, c) => f.Finance.AccountName())
+                .RuleFor(c => c.Bandeira, (f, c) => f.PickRandom<TipoBandeiraCartao>())
+                .RuleFor(c => c.DataExpiracao, (f, c) => f.Date.Future(10).ToString("MM/yyyy"))
+                .RuleFor(c => c.CodigoSeguranca, (f, c) => int.Parse(f.Finance.CreditCardCvv()));
+
+            return cartao.Generate(quantidade);
+        }
+
         public void Dispose()
         {
             
