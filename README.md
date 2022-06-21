@@ -15,4 +15,4 @@ Tecnologias:
 -> Executar Docker compose: 
 docker-compose -f compose-production.yml up 
 
-<i>*esperar 2 minutos para rodar os scripts do DB.</i>
+<i>*Aguardar 2 minutos para a execução automática dos scripts iniciais no DB.</i>
