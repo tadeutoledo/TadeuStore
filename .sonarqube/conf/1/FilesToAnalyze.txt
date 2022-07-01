@@ -1,2 +1,0 @@
-﻿C:\Users\Tadeu\source\repos\TadeuStore\TadeuStore.Infra.CrossCutting\EventsBus\EventBusEasyNetQ.cs
-C:\Users\Tadeu\source\repos\TadeuStore\TadeuStore.Infra.CrossCutting\EventsBus\EventBusRabbitMQ.cs

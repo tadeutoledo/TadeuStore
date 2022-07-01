@@ -1,2 +1,0 @@
-﻿C:\Users\Tadeu\source\repos\TadeuStore\TadeuStore.Services\AplicativoService.cs
-C:\Users\Tadeu\source\repos\TadeuStore\TadeuStore.Services\UsuarioService.cs
